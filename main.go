@@ -1,19 +1,38 @@
 package main
 
-import "github.com/gin-gonic/gin"
+import (
+	"fmt"
+	"runtime"
 
-func setupRouter() *gin.Engine {
-	r := gin.Default()
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
-	return r
-}
+	"github.com/gin-gonic/gin"
+)
 
 func main() {
-	println("Hello, world!")
-	r := setupRouter()
-	r.Run(":8080")
+	ConfigRuntime()
+	StartGin()
+}
+
+func ConfigRuntime() {
+	nuCPU := runtime.NumCPU()
+	runtime.GOMAXPROCS(nuCPU)
+	fmt.Printf("Running with %d CPUs\n", nuCPU)
+}
+
+func setupRouter(router *gin.Engine)  {
+	router.Static("/static", "resources/static")
+	router.GET("/", index)
+	router.GET("/ping", ping)
+}
+
+func StartGin() {
+	// gin.SetMode(gin.ReleaseMode)
+	// router.Use(rateLimit, gin.Recovery())
+	// router.GET("/room/:roomid", roomGET)
+	// router.POST("/room-post/:roomid", roomPOST)
+	// router.GET("/stream/:roomid", streamRoom)
+
+	router := gin.Default()
+	router.LoadHTMLGlob("resources/*.templ.html")
+	setupRouter(router)
+	router.Run(":80")
 }
