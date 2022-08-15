@@ -32,6 +32,7 @@ func setupRouter(router *gin.Engine) {
 		// rooms.POST("/:roomid", roomPOST)
 		rooms.POST("/new", roomNEW)
 		rooms.GET("/count", roomCOUNT)
+		rooms.GET("/list", roomLIST)
 		rooms.DELETE("/:roomid", roomDELETE)
 	}
 
