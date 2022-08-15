@@ -5,6 +5,11 @@ import (
 	"github.com/google/uuid"
 )
 
+type Message struct {
+	Type string
+	Body string
+}
+
 // Creating a map of room IDs to broadcasters.
 var roomChannels = make(map[string]broadcast.Broadcaster)
 var roomCounter uint64 = 0
@@ -38,7 +43,7 @@ func newRoom() (roomid string, b broadcast.Broadcaster) {
 func deleteRoom(roomid string) bool {
 	r, ok := roomChannels[roomid]
 	if ok {
-		r.Submit("stop")
+		r.Submit(Message{"stop", ""})
 		r.Close()
 		delete(roomChannels, roomid)
 		roomCounter--
