@@ -3,12 +3,12 @@ module github.com/alekxeyuk/TicTacGo
 go 1.19
 
 require (
+	github.com/dustin/go-broadcast v0.0.0-20211018055107-71439988bd91
 	github.com/gin-gonic/gin v1.8.1
 	github.com/google/uuid v1.3.0
 )
 
 require (
-	github.com/dustin/go-broadcast v0.0.0-20211018055107-71439988bd91 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
