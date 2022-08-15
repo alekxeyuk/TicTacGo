@@ -34,6 +34,11 @@ func setupRouter(router *gin.Engine)  {
 		rooms.GET("/count", roomCOUNT)
 		rooms.DELETE("/:roomid", roomDELETE)
 	}
+
+	sse := router.Group("/stream")
+	{
+		sse.GET("/:roomid", roomSTREAM)
+	}
 }
 
 func StartGin() {
@@ -46,7 +51,7 @@ func StartGin() {
 	router := gin.Default()
 	router.SetFuncMap(template.FuncMap{
         "plural": func (c uint64) (end string) {
-			if c > 1 {
+			if c != 1 {
 				end = "s"
 			}
 			return
