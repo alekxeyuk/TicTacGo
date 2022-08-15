@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"runtime"
 
+	"github.com/alekxeyuk/TicTacGo/constant"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,6 +17,7 @@ func ConfigRuntime() {
 	nuCPU := runtime.NumCPU()
 	runtime.GOMAXPROCS(nuCPU)
 	fmt.Printf("Running with %d CPUs\n", nuCPU)
+	fmt.Printf("Version: %s\nBuilt at: %s\n", constant.Version, constant.BuildTime)
 }
 
 func setupRouter(router *gin.Engine)  {
