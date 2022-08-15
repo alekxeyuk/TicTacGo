@@ -2,6 +2,7 @@ NAME=TicTacGo
 BINDIR=bin
 VERSION=$(shell git describe --tags || echo "unknown version")
 BUILDTIME=$(shell date -u)
+GIN_MODE=release
 GOBUILD=CGO_ENABLED=0 go build -trimpath -ldflags '-X "github.com/alekxeyuk/TicTacGo/constant.Version=$(VERSION)" \
 		-X "github.com/alekxeyuk/TicTacGo/constant.BuildTime=$(BUILDTIME)" \
 		-w -s -buildid='
