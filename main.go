@@ -21,7 +21,7 @@ func ConfigRuntime() {
 	fmt.Printf("Version: %s\nBuilt at: %s\n", constant.Version, constant.BuildTime)
 }
 
-func setupRouter(router *gin.Engine)  {
+func setupRouter(router *gin.Engine) {
 	router.Static("/static", "resources/static")
 	router.GET("/", index)
 	router.GET("/ping", ping)
@@ -50,13 +50,13 @@ func StartGin() {
 
 	router := gin.Default()
 	router.SetFuncMap(template.FuncMap{
-        "plural": func (c uint64) (end string) {
+		"plural": func(c uint64) (end string) {
 			if c != 1 {
 				end = "s"
 			}
 			return
 		},
-    })
+	})
 	router.LoadHTMLGlob("resources/*.templ.html")
 	setupRouter(router)
 	router.Run(":80")
