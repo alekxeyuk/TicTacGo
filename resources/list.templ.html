@@ -1,0 +1,9 @@
+{{ define "index/list" }}
+<ul id="rooms-list">
+    {{ range $key, $value := .rooms }}
+      <li>
+        <a href="/room/{{ $key }}">{{ $key }}</a>
+      </li>
+    {{ end }}
+  </ul>
+{{ end }}
