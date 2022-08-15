@@ -12,10 +12,11 @@
     <main class="container">
       <h1>{{ .title }}</h1>
       <p>There is currently {{ .roomCount }} open room{{ .roomCount | plural }}.</p>
-      <button hx-post="/room/new" hx-swap="outerHTML">New Room</button>
-      <div hx-ext="sse" sse-connect="/stream/global" sse-swap="message,time">
-        Contents of this box will be updated in real time
-        with every SSE message received from the chatroom.
+      <button hx-post="/room/new" hx-swap="none">New Room</button>
+      <div hx-ext="sse" sse-connect="/stream/global">
+        <div hx-get="/room/list" hx-trigger="sse:rooms">
+          {{ template "index/list" .}}
+        </div>
       </div>
     </main>
   </body>
