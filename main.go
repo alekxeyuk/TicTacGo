@@ -24,6 +24,15 @@ func setupRouter(router *gin.Engine)  {
 	router.Static("/static", "resources/static")
 	router.GET("/", index)
 	router.GET("/ping", ping)
+
+	rooms := router.Group("/room")
+	{
+		// rooms.GET("/:roomid", roomGET)
+		// rooms.POST("/:roomid", roomPOST)
+		rooms.POST("/new", roomNEW)
+		rooms.GET("/count", roomCOUNT)
+		rooms.DELETE("/:roomid", roomDELETE)
+	}
 }
 
 func StartGin() {
