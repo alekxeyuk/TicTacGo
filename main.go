@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"html/template"
 	"runtime"
 
 	"github.com/alekxeyuk/TicTacGo/constant"
@@ -43,6 +44,14 @@ func StartGin() {
 	// router.GET("/stream/:roomid", streamRoom)
 
 	router := gin.Default()
+	router.SetFuncMap(template.FuncMap{
+        "plural": func (c uint64) (end string) {
+			if c > 1 {
+				end = "s"
+			}
+			return
+		},
+    })
 	router.LoadHTMLGlob("resources/*.templ.html")
 	setupRouter(router)
 	router.Run(":80")

@@ -10,6 +10,7 @@ import (
 func index(c *gin.Context) {
 	c.HTML(http.StatusOK, "index.templ.html", gin.H{
 		"title": "Main page",
+		"roomCount": roomCounter,
 	})
 }
 

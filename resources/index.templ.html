@@ -9,6 +9,7 @@
   <body>
     <main class="container">
       <h1>{{ .title }}</h1>
+      <p>There is currently {{ .roomCount }} open room{{ .roomCount | plural }}.</p>
     </main>
   </body>
 </html>
