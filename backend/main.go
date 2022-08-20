@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"html/template"
 	"runtime"
 
 	"github.com/alekxeyuk/TicTacGo/constant"
@@ -22,14 +21,11 @@ func ConfigRuntime() {
 }
 
 func setupRouter(router *gin.Engine) {
-	// router.Static("/static", "static")
 	router.GET("/", index)
 	router.GET("/ping", ping)
 
 	rooms := router.Group("/room")
 	{
-		// rooms.GET("/:roomid", roomGET)
-		// rooms.POST("/:roomid", roomPOST)
 		rooms.POST("/new", roomNEW)
 		rooms.GET("/count", roomCOUNT)
 		rooms.GET("/list", roomLIST)
@@ -43,22 +39,7 @@ func setupRouter(router *gin.Engine) {
 }
 
 func StartGin() {
-	// gin.SetMode(gin.ReleaseMode)
-	// router.Use(rateLimit, gin.Recovery())
-	// router.GET("/room/:roomid", roomGET)
-	// router.POST("/room-post/:roomid", roomPOST)
-	// router.GET("/stream/:roomid", streamRoom)
-
 	router := gin.Default()
-	router.SetFuncMap(template.FuncMap{
-		"plural": func(c uint64) (end string) {
-			if c != 1 {
-				end = "s"
-			}
-			return
-		},
-	})
-	router.LoadHTMLGlob("resources/*.templ.html")
 	setupRouter(router)
 	router.Run(":80")
 }
