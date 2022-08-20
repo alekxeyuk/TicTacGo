@@ -2,6 +2,10 @@ name: Go
 
 on: [push, pull_request]
 
+defaults:
+  run:
+    working-directory: ./backend
+
 jobs:
   build:
     if: startsWith(github.ref, 'refs/tags/')
@@ -25,7 +29,7 @@ jobs:
           ${{ runner.os }}-go-
 
     - name: Get dependencies, run test and static check
-      run: go get -u ./...
+      run: go get -u backend/...
 
     - name: Build
       env:
@@ -38,5 +42,5 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        files: bin/*
+        files: backend/bin/*
         draft: true
