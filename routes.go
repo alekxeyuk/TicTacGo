@@ -46,10 +46,18 @@ func roomLIST(c *gin.Context) {
 
 func roomDELETE(c *gin.Context) {
 	roomid := c.Param("roomid")
+	if roomid == globalRoomID {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "cannot delete global room",
+		})
+		return
+	}
+
 	if ok := deleteRoom(roomid); ok {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "deleted",
 		})
+		getRoom(globalRoomID).Submit(Message{"rooms", "deleted"})
 	} else {
 		c.JSON(http.StatusGone, gin.H{
 			"message": "not found",
@@ -69,7 +77,7 @@ func roomSTREAM(c *gin.Context) {
 	}
 
 	listener := openListener(roomid)
-	ticker := time.NewTicker(1 * time.Second)
+	ticker := time.NewTicker(10 * time.Second)
 	defer func() {
 		closeListener(roomid, listener)
 		ticker.Stop()
@@ -87,9 +95,6 @@ func roomSTREAM(c *gin.Context) {
 			default:
 				c.SSEvent("message", msg)
 			}
-			// if msg == "stop" {
-			// 	return false
-			// }
 		case <-ticker.C:
 			c.SSEvent("time", time.Now().String())
 		}

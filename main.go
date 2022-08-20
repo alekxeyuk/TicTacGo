@@ -22,7 +22,7 @@ func ConfigRuntime() {
 }
 
 func setupRouter(router *gin.Engine) {
-	router.Static("/static", "resources/static")
+	router.Static("/static", "static")
 	router.GET("/", index)
 	router.GET("/ping", ping)
 
