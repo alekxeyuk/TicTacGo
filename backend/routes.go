@@ -10,10 +10,8 @@ import (
 )
 
 func index(c *gin.Context) {
-	c.HTML(http.StatusOK, "index.templ.html", gin.H{
-		"title":     "Main page",
-		"roomCount": roomCounter,
-		"rooms":     roomChannels,
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Nothing to see here",
 	})
 }
 
@@ -39,8 +37,8 @@ func roomCOUNT(c *gin.Context) {
 }
 
 func roomLIST(c *gin.Context) {
-	c.HTML(http.StatusOK, "index/list", gin.H{
-		"rooms": roomChannels,
+	c.JSON(http.StatusOK, gin.H{
+		"rooms": "roomChannels",
 	})
 }
 
