@@ -2,7 +2,7 @@
 
 ## Крестики-нолики онлайн
 -   Backend  in Go (gin-gorm)
--   Frontend in JS (Astro/Svelte)
+-   Frontend in JS (Svelte)
 -   CSS styling using Tailwind
 -   Communication using SSE/WS/REST/CRUD
 -   Hosting
