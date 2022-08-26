@@ -1,20 +1,33 @@
 module.exports = {
-	root: true,
-	parser: '@typescript-eslint/parser',
-	extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'prettier'],
-	plugins: ['svelte3', '@typescript-eslint'],
-	ignorePatterns: ['*.cjs'],
-	overrides: [{ files: ['*.svelte'], processor: 'svelte3/svelte3' }],
-	settings: {
-		'svelte3/typescript': () => require('typescript')
-	},
-	parserOptions: {
-		sourceType: 'module',
-		ecmaVersion: 2020
-	},
-	env: {
-		browser: true,
-		es2017: true,
-		node: true
-	}
-};
+    env: {
+      node: true,
+      es2022: true,
+      browser: true,
+    },
+    extends: ['eslint:recommended', 'plugin:astro/recommended'],
+    parserOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+    },
+    rules: {},
+    overrides: [
+      {
+        files: ["*.astro"],
+        parser: "astro-eslint-parser",
+        parserOptions: {
+          parser: "@typescript-eslint/parser",
+          extraFileExtensions: [".astro"],
+        },
+        rules: {},
+      },
+      {
+        files: ['*.ts'],
+        parser: '@typescript-eslint/parser',
+        extends: ['plugin:@typescript-eslint/recommended'],
+        rules: {
+          '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', destructuredArrayIgnorePattern: '^_' }],
+          '@typescript-eslint/no-non-null-assertion': 'off',
+        },
+      },
+    ],
+  };
