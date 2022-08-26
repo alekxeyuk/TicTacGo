@@ -1,9 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -22,12 +22,16 @@ func ping(c *gin.Context) {
 	getRoom(globalRoomID).Submit(Message{"ping", "pong"})
 }
 
+func sendCountEvent() {
+	getRoom(globalRoomID).Submit(Message{"count", strconv.FormatUint(roomCounter, 10)})
+}
+
 func roomNEW(c *gin.Context) {
 	roomid, _ := newRoom()
 	c.JSON(http.StatusCreated, gin.H{
 		"uuid": roomid,
 	})
-	getRoom(globalRoomID).Submit(Message{"rooms", fmt.Sprintf("created room %s", roomid)})
+	go sendCountEvent()
 }
 
 func roomCOUNT(c *gin.Context) {
@@ -55,7 +59,7 @@ func roomDELETE(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "deleted",
 		})
-		getRoom(globalRoomID).Submit(Message{"rooms", "deleted"})
+		go sendCountEvent()
 	} else {
 		c.JSON(http.StatusGone, gin.H{
 			"message": "not found",

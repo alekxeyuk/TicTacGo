@@ -15,13 +15,13 @@
     onMount(() => {
         getRoomsCount();
 
-        const store = createChannelStore('global');
+        const serverEvents = createChannelStore('global', 'count');
 
-        store.subscribe(incomingMessages => {
-            console.log(incomingMessages);
+        serverEvents.subscribe(incomingCount => {
+            count = parseInt(incomingCount);
         });
 
-        return store.close;
+        return serverEvents.close;
     });
 </script>
 
