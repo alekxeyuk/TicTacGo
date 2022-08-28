@@ -22,8 +22,10 @@ func ConfigRuntime() {
 
 func setupRouter(router *gin.Engine) {
 	router.Use(CORSMiddleware())
+	router.Use(UserMiddleware())
 	router.GET("/", index)
 	router.GET("/ping", ping)
+	// router.GET("/random", random)
 
 	rooms := router.Group("/room")
 	{

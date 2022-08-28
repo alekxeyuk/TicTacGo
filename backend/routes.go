@@ -35,8 +35,11 @@ func roomNEW(c *gin.Context) {
 }
 
 func roomCOUNT(c *gin.Context) {
+	ok, user := authorized(c)
 	c.JSON(http.StatusOK, gin.H{
 		"count": roomCounter,
+		"user":  user,
+		"ok":    ok,
 	})
 }
 
