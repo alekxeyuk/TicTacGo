@@ -26,7 +26,7 @@ func sendCountEvent() {
 	getRoom(globalRoomID).Submit(Message{"count", strconv.FormatUint(roomCounter, 10)})
 }
 
-func roomNEW(c *gin.Context) {
+func roomRANDOM(c *gin.Context) {
 	roomid, _ := newRoom()
 	c.JSON(http.StatusCreated, gin.H{
 		"uuid": roomid,
@@ -37,9 +37,12 @@ func roomNEW(c *gin.Context) {
 func roomCOUNT(c *gin.Context) {
 	ok, user := authorized(c)
 	c.JSON(http.StatusOK, gin.H{
-		"count": roomCounter,
-		"user":  user,
-		"ok":    ok,
+		"room_count": roomCounter,
+		"rooms":      roomChannels,
+		"user":       user,
+		"user_count": userCounter,
+		"users":      userMap,
+		"ok":         ok,
 	})
 }
 
