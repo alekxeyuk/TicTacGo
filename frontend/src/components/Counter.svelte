@@ -1,4 +1,4 @@
-<script type="ts">
+<script lang="ts">
     import { onMount } from "svelte";
     import { createChannelStore } from "../stores/indexChannelStore";
 
@@ -15,7 +15,7 @@
     onMount(() => {
         getRoomsCount();
 
-        const serverEvents = createChannelStore('global', 'count');
+        const serverEvents = createChannelStore('global', 'count', false);
 
         serverEvents.subscribe(incomingCount => {
             count = parseInt(incomingCount);
