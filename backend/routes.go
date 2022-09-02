@@ -30,7 +30,7 @@ func roomMOVE(c *gin.Context) {
 	roomid := c.Param("roomid")
 	room := getRoom(roomid)
 	ok, _ := authorized(c)
-	if roomid == "global" || room.id == "" || !ok {
+	if roomid == "global" || room != nil || !ok {
 		c.Status(http.StatusBadRequest)
 		return
 	}
@@ -40,11 +40,18 @@ func roomMOVE(c *gin.Context) {
 		c.Status(http.StatusBadRequest)
 		return
 	}
-	time.Sleep(time.Duration(cell) * time.Second)
+	room.move(cell)
+	room.b.Submit(Message{"move", c.Query("cell")})
 }
 
 func roomRANDOM(c *gin.Context) {
+	ok, user := authorized(c)
+	if !ok {
+		c.Status(http.StatusUnauthorized)
+		return
+	}
 	roomid, _ := newRoom()
+	getRoom(roomid).addPlayer(getUser(user))
 	c.JSON(http.StatusCreated, gin.H{
 		"uuid": roomid,
 	})
@@ -68,11 +75,11 @@ func roomLIST(c *gin.Context) {
 	roomsJSON := make([]gin.H, 0)
 	for _, room := range rooms {
 		roomsJSON = append(roomsJSON, gin.H{
-			"uuid": room.id,
-			"board": room.board,
+			"uuid":           room.id,
+			"board":          room.board,
 			"current_player": room.currentPlayer.String(),
-			"players": room.users,
-			"state": room.state.String(),
+			"players":        room.users,
+			"state":          room.state.String(),
 		})
 	}
 	c.JSON(http.StatusOK, gin.H{
@@ -105,7 +112,7 @@ func roomSTREAM(c *gin.Context) {
 	roomid := c.Param("roomid")
 	if roomid == "global" {
 		roomid = globalRoomID
-	} else if getRoom(roomid).id == "" {
+	} else if getRoom(roomid) != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"message": "not found",
 		})

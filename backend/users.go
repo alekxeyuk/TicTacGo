@@ -9,15 +9,19 @@ type User struct {
 	id string
 }
 
-var userMap = make(map[string]User)
+var userMap = make(map[string]*User)
 var userCounter uint64 = 0
 
 func newUser() *User {
 	userId := uuid.NewString()
-	u := User{userId}
+	u := &User{userId}
 	userMap[userId] = u
 	userCounter++
-	return &u
+	return u
+}
+
+func getUser(userId string) *User {
+	return userMap[userId]
 }
 
 func (u *User) getId() string {

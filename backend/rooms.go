@@ -35,7 +35,7 @@ type Room struct {
 	board         [9]PlayerSign
 	boardLock     sync.RWMutex
 	currentPlayer PlayerSign
-	users         [2]User
+	users         [2]*User
 	state         RoomState
 }
 
@@ -64,7 +64,7 @@ func closeListener(roomid string, listener chan interface{}) {
 func newRoom() (roomid string, b broadcast.Broadcaster) {
 	roomid = uuid.NewString()
 	b = broadcast.NewBroadcaster(10)
-	rooms[roomid] = &Room{roomid, b, [9]PlayerSign{}, sync.RWMutex{}, PLAYER_X, [2]User{}, EMPTY_ROOM}
+	rooms[roomid] = &Room{roomid, b, [9]PlayerSign{}, sync.RWMutex{}, PLAYER_X, [2]*User{}, EMPTY_ROOM}
 	roomsCounter++
 	return
 }
@@ -84,4 +84,28 @@ func deleteRoom(roomid string) bool {
 // returns nil.
 func getRoom(roomid string) *Room {
 	return rooms[roomid]
+}
+
+func (r *Room) getBoard() [9]PlayerSign {
+	r.boardLock.RLock()
+	defer r.boardLock.RUnlock()
+	return r.board
+}
+
+func (r *Room) setBoard(board [9]PlayerSign) {
+	r.boardLock.Lock()
+	defer r.boardLock.Unlock()
+	r.board = board
+}
+
+func (r *Room) move(index int64) {
+	r.boardLock.Lock()
+	defer r.boardLock.Unlock()
+	r.board[index] = r.currentPlayer
+}
+
+func (r *Room) addPlayer(user *User) {
+	r.boardLock.Lock()
+	defer r.boardLock.Unlock()
+	r.users[0] = user
 }
