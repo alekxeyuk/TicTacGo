@@ -1,6 +1,8 @@
 package main
 
 import (
+	"sync"
+
 	"github.com/dustin/go-broadcast"
 	"github.com/google/uuid"
 )
@@ -10,22 +12,49 @@ type Message struct {
 	Body string
 }
 
+type RoomState byte
+type PlayerSign byte
+
+const (
+	EMPTY_CELL PlayerSign = iota
+	PLAYER_X
+	PLAYER_O
+)
+
+const (
+	EMPTY_ROOM RoomState = iota
+	GAME_IN_PROGRESS
+	GAME_FINISHED
+)
+
+//go:generate stringer -type=RoomState,PlayerSign
+
+type Room struct {
+	id            string
+	b             broadcast.Broadcaster
+	board         [9]PlayerSign
+	boardLock     sync.RWMutex
+	currentPlayer PlayerSign
+	users         [2]User
+	state         RoomState
+}
+
 // Creating a map of room IDs to broadcasters.
-var roomChannels = make(map[string]broadcast.Broadcaster)
-var roomCounter uint64 = 0
+var rooms = make(map[string]*Room)
+var roomsCounter uint64 = 0
 var globalRoomID, _ = newRoom()
 
 // It creates a channel, registers it with the room, and returns it.
 func openListener(roomid string) chan interface{} {
 	listener := make(chan interface{})
-	getRoom(roomid).Register(listener)
+	getRoom(roomid).b.Register(listener)
 	return listener
 }
 
 // It closes the listener channel and unregisters it from the room.
 func closeListener(roomid string, listener chan interface{}) {
-	if room := getRoom(roomid); room != nil {
-		room.Unregister(listener)
+	if room := getRoom(roomid); room.id != "" {
+		room.b.Unregister(listener)
 	}
 	close(listener)
 }
@@ -35,24 +64,24 @@ func closeListener(roomid string, listener chan interface{}) {
 func newRoom() (roomid string, b broadcast.Broadcaster) {
 	roomid = uuid.NewString()
 	b = broadcast.NewBroadcaster(10)
-	roomChannels[roomid] = b
-	roomCounter++
+	rooms[roomid] = &Room{roomid, b, [9]PlayerSign{}, sync.RWMutex{}, PLAYER_X, [2]User{}, EMPTY_ROOM}
+	roomsCounter++
 	return
 }
 
 func deleteRoom(roomid string) bool {
-	r, ok := roomChannels[roomid]
+	r, ok := rooms[roomid]
 	if ok {
-		r.Submit(Message{"stop", ""})
-		r.Close()
-		delete(roomChannels, roomid)
-		roomCounter--
+		r.b.Submit(Message{"stop", ""})
+		r.b.Close()
+		delete(rooms, roomid)
+		roomsCounter--
 	}
 	return ok
 }
 
 // Returns a room channel for the given room id. If the room does not exist,
 // returns nil.
-func getRoom(roomid string) broadcast.Broadcaster {
-	return roomChannels[roomid]
+func getRoom(roomid string) *Room {
+	return rooms[roomid]
 }

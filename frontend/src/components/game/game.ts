@@ -12,10 +12,10 @@ function createStore() {
         subscribe,
         reset: () => set(defaultState),
         updateBoard: (index: number) => update((state) => {
-            const newBoard = [...state.board];
-            newBoard[index] = state.isXNext ? 'X' : 'O';
+            // const newBoard = [...state.board];
+            state.board[index] = state.isXNext ? 'X' : 'O';
             return {
-                board: newBoard,
+                board: state.board,
                 isXNext: !state.isXNext,
             };
         }),

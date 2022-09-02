@@ -19,11 +19,28 @@ func ping(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "pong",
 	})
-	getRoom(globalRoomID).Submit(Message{"ping", "pong"})
+	getRoom(globalRoomID).b.Submit(Message{"ping", "pong"})
 }
 
 func sendCountEvent() {
-	getRoom(globalRoomID).Submit(Message{"count", strconv.FormatUint(roomCounter, 10)})
+	getRoom(globalRoomID).b.Submit(Message{"count", strconv.FormatUint(roomsCounter, 10)})
+}
+
+func roomMOVE(c *gin.Context) {
+	roomid := c.Param("roomid")
+	room := getRoom(roomid)
+	ok, _ := authorized(c)
+	if roomid == "global" || room.id == "" || !ok {
+		c.Status(http.StatusBadRequest)
+		return
+	}
+
+	cell, err := strconv.ParseInt(c.Query("cell"), 10, 64)
+	if err != nil {
+		c.Status(http.StatusBadRequest)
+		return
+	}
+	time.Sleep(time.Duration(cell) * time.Second)
 }
 
 func roomRANDOM(c *gin.Context) {
@@ -37,8 +54,8 @@ func roomRANDOM(c *gin.Context) {
 func roomCOUNT(c *gin.Context) {
 	ok, user := authorized(c)
 	c.JSON(http.StatusOK, gin.H{
-		"room_count": roomCounter,
-		"rooms":      roomChannels,
+		"room_count": roomsCounter,
+		"rooms":      rooms,
 		"user":       user,
 		"user_count": userCounter,
 		"users":      userMap,
@@ -47,8 +64,19 @@ func roomCOUNT(c *gin.Context) {
 }
 
 func roomLIST(c *gin.Context) {
+	// return a list of all rooms as JSON
+	roomsJSON := make([]gin.H, 0)
+	for _, room := range rooms {
+		roomsJSON = append(roomsJSON, gin.H{
+			"uuid": room.id,
+			"board": room.board,
+			"current_player": room.currentPlayer.String(),
+			"players": room.users,
+			"state": room.state.String(),
+		})
+	}
 	c.JSON(http.StatusOK, gin.H{
-		"rooms": "roomChannels",
+		"rooms": roomsJSON,
 	})
 }
 
@@ -77,7 +105,7 @@ func roomSTREAM(c *gin.Context) {
 	roomid := c.Param("roomid")
 	if roomid == "global" {
 		roomid = globalRoomID
-	} else if getRoom(roomid) == nil {
+	} else if getRoom(roomid).id == "" {
 		c.JSON(http.StatusNotFound, gin.H{
 			"message": "not found",
 		})

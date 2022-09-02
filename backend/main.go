@@ -31,7 +31,8 @@ func setupRouter(router *gin.Engine) {
 		rooms.GET("/random", roomRANDOM)
 		rooms.GET("/:roomid/stream", roomSTREAM)
 		rooms.GET("/count", roomCOUNT)
-		// rooms.GET("/list", roomLIST)
+		rooms.PUT("/:roomid/move", roomMOVE)
+		rooms.GET("/list", roomLIST)
 		// rooms.DELETE("/:roomid", roomDELETE)
 	}
 }
