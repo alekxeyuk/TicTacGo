@@ -9,7 +9,7 @@
     async function getRoomsCount() {
         const response = await fetch('http://localhost:80/room/count');
         const data = await response.json();
-        count = data.count;
+        count = data.room_count;
     }
 
     onMount(() => {
