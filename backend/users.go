@@ -6,15 +6,16 @@ import (
 )
 
 type User struct {
-	id string
+	id     string
+	roomId string
 }
 
 var userMap = make(map[string]*User)
 var userCounter uint64 = 0
 
-func newUser() *User {
+func newUser(rid string) *User {
 	userId := uuid.NewString()
-	u := &User{userId}
+	u := &User{userId, rid}
 	userMap[userId] = u
 	userCounter++
 	return u
@@ -37,7 +38,7 @@ func authorized(c *gin.Context) (bool, string) {
 }
 
 func middlewareBody(c *gin.Context) {
-	uId := newUser().getId()
+	uId := newUser("").getId()
 	c.SetCookie("user_id", uId, 3600, "/", "127.0.0.1", false, true)
 	c.SetCookie("user_id", uId, 3600, "/", "localhost", false, true)
 	c.Set("user_id", uId)
