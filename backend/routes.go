@@ -19,7 +19,7 @@ func ping(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "pong",
 	})
-	globalRoom.b.Submit(Message{"ping", "pong"})
+	globalRoom.b.Submit(Message{"ping", gin.H{"type": "ping", "time": time.Now().String()}})
 }
 
 func sendCountEvent() {
@@ -41,7 +41,7 @@ func roomMOVE(c *gin.Context) {
 		return
 	}
 	room.move(cell)
-	room.b.Submit(Message{"move", c.Query("cell")})
+	room.b.Submit(Message{"game", gin.H{"action": "move", "index": c.Query("cell"), "sign": room.currentPlayer.String()}})
 }
 
 func roomJoinOrCreate(c *gin.Context, u *User) {
@@ -56,6 +56,7 @@ func roomJoinOrCreate(c *gin.Context, u *User) {
 	u.roomId = room.id
 	c.JSON(http.StatusOK, gin.H{
 		"uuid": room.id,
+		"state": room.board,
 	})
 }
 
@@ -74,6 +75,7 @@ func roomRANDOM(c *gin.Context) {
 		if r != nil {
 			c.JSON(http.StatusOK, gin.H{
 				"uuid": r.id,
+				"state": r.board,
 			})
 		} else {
 			roomJoinOrCreate(c, u)

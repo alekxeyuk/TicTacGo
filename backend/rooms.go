@@ -9,7 +9,7 @@ import (
 
 type Message struct {
 	Type string
-	Body string
+	Body interface{}
 }
 
 type RoomState byte
@@ -107,20 +107,29 @@ func getRoom(roomid string) *Room {
 	return rooms[roomid]
 }
 
-func (r *Room) getBoard() [9]PlayerSign {
-	r.boardLock.RLock()
-	defer r.boardLock.RUnlock()
-	return r.board
-}
+// func (r *Room) getBoard() [9]PlayerSign {
+// 	r.boardLock.RLock()
+// 	defer r.boardLock.RUnlock()
+// 	return r.board
+// }
 
-func (r *Room) setBoard(board [9]PlayerSign) {
-	r.boardLock.Lock()
-	defer r.boardLock.Unlock()
-	r.board = board
-}
+// func (r *Room) setBoard(board [9]PlayerSign) {
+// 	r.boardLock.Lock()
+// 	defer r.boardLock.Unlock()
+// 	r.board = board
+// }
 
 func (r *Room) move(index int64) {
 	r.boardLock.Lock()
 	defer r.boardLock.Unlock()
 	r.board[index] = r.currentPlayer
+	r.switchPlayer()
+}
+
+func (r *Room) switchPlayer() {
+	if r.currentPlayer == PLAYER_X {
+		r.currentPlayer = PLAYER_O
+	} else {
+		r.currentPlayer = PLAYER_X
+	}
 }

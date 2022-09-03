@@ -7,7 +7,7 @@
 
     // get the rooms count from the server
     async function getRoomsCount() {
-        const response = await fetch('http://localhost:80/room/count');
+        const response = await fetch('http://localhost:80/room/count', {credentials: 'include'});
         const data = await response.json();
         count = data.room_count;
     }
@@ -15,7 +15,7 @@
     onMount(() => {
         getRoomsCount();
 
-        const serverEvents = createChannelStore('global', 'count', false);
+        const serverEvents = createChannelStore('global', 'count', true);
 
         serverEvents.subscribe(incomingCount => {
             count = parseInt(incomingCount);

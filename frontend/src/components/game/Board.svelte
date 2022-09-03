@@ -9,7 +9,7 @@
     export let gameInstance: Game;
 
     function handleInput(index: number) {
-        dispatch("gameEvent", { action: "move", index });
+        dispatch("gameEvent", { action: "click", index });
     }
 </script>
 

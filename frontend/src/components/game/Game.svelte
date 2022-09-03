@@ -4,7 +4,7 @@
     import { Game } from "./game";
     import Board from "./Board.svelte";
 
-    let messages: string[] = [];
+    // let messages: string[] = [];
     let gameInstance = new Game();
     let roomId = "";
     $: status = `Next player: ${$gameInstance.isXNext ? 'X' : 'O'}`;
@@ -13,31 +13,35 @@
         a: CustomEvent<{ action: string; index: number }>
     ) {
         console.log("handleBoardMessage", a.detail);
-        messages = [...messages, a.detail.action + ": " + a.detail.index];
 
         switch (a.detail.action) {
-            case "move":
-                gameInstance.move(a.detail.index);
+            case "click":
+                gameInstance.sendClick(a.detail.index);
                 break;
-            // case "reset":
-            //     gameInstance.reset();
-            //     break;
-            // case "start":
-            //     gameInstance.start();
-            //     break;
-            // case "stop":
-            //     gameInstance.stop();
-            //     break;
+        }
+    }
+
+    function handleServerMessage(a: string) {
+        console.log("handleGameMessage", a);
+
+        const data = JSON.parse(a);
+
+        switch (data.action) {
+            case "move":
+                gameInstance.placeSignAtIndex(data.index, data.sign);
+                break;
         }
     }
 
     onMount(async () => {
         roomId = await gameInstance.init();
 
-        const serverEvents = createChannelStore(roomId, "time", true);
+        const serverEvents = createChannelStore(roomId, "game", true);
 
         serverEvents.subscribe((incomingEvent) => {
-            messages = [...messages, incomingEvent];
+            if (incomingEvent !== "") {
+                handleServerMessage(incomingEvent);
+            }
             console.log(incomingEvent);
         });
 
@@ -53,10 +57,10 @@
     <div class="game-info">
         <h2>{roomId}</h2>
         <div>{status}</div>
-        <ul>
+        <!-- <ul>
             {#each messages as message}
                 <li>{message}</li>
             {/each}
-        </ul>
+        </ul> -->
     </div>
 </div>

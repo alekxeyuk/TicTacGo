@@ -11,9 +11,18 @@ function createStore() {
     return {
         subscribe,
         reset: () => set(defaultState),
-        updateBoard: (index: number) => update((state) => {
+        changeCell: (index: number, sign: string) => update((state: typeof defaultState) => {
             // const newBoard = [...state.board];
-            state.board[index] = state.isXNext ? 'X' : 'O';
+            state.board[index] = sign === 'PLAYER_X' ? 'X' : 'O';
+            return {
+                board: state.board,
+                isXNext: !state.isXNext,
+            };
+        }),
+        updateBoard: (board: number[]) => update((state: typeof defaultState) => {
+            board.forEach((sign, index) => {
+                state.board[index] = sign === 0 ? '' : sign === 1 ? 'O' : 'X';
+            });
             return {
                 board: state.board,
                 isXNext: !state.isXNext,
@@ -22,8 +31,8 @@ function createStore() {
     };
 }
 
-async function getRandomRoom(): Promise<{uuid:string}> {
-    const response = await fetch("http://localhost:80/room/random", {credentials: 'include'});
+async function getRandomRoom(): Promise<{ uuid: string; state: number[] }> {
+    const response = await fetch("http://localhost:80/room/random", { credentials: 'include' });
     return response.json();
 }
 
@@ -34,12 +43,13 @@ export class Game {
     private channelId = '';
 
     async init(): Promise<string> {
-        const channelId = await getRandomRoom();
-        this.channelId = channelId.uuid;
+        const roomData = await getRandomRoom();
+        this.channelId = roomData.uuid;
+        this.store.updateBoard(roomData.state);
         return this.channelId;
     }
 
-    move(index: number) {
+    sendClick(index: number) {
         if (this.mutex) {
             return;
         }
@@ -49,20 +59,22 @@ export class Game {
             method: 'PUT',
             credentials: 'include',
         }).then(() => {
-                // this.mutex = false;
+            // this.mutex = false;
         }).finally(() => {
             this.mutex = false;
         });
-
-        this.store.updateBoard(index);
     }
 
     reset() {
         this.store.reset();
     }
 
-    updateBoard(index: number) {
-        this.store.updateBoard(index);
+    placeSignAtIndex(index: number, sign: string) {
+        this.store.changeCell(index, sign);
+    }
+
+    updateBoard(board: number[]) {
+        this.store.updateBoard(board);
     }
 
     subscribe(callback: (state: typeof defaultState) => void) {
