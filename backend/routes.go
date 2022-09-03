@@ -19,18 +19,18 @@ func ping(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "pong",
 	})
-	getRoom(globalRoomID).b.Submit(Message{"ping", "pong"})
+	globalRoom.b.Submit(Message{"ping", "pong"})
 }
 
 func sendCountEvent() {
-	getRoom(globalRoomID).b.Submit(Message{"count", strconv.FormatUint(roomsCounter, 10)})
+	globalRoom.b.Submit(Message{"count", strconv.FormatUint(roomsCounter, 10)})
 }
 
 func roomMOVE(c *gin.Context) {
 	roomid := c.Param("roomid")
 	room := getRoom(roomid)
 	ok, _ := authorized(c)
-	if roomid == "global" || room != nil || !ok {
+	if roomid == "global" || room == nil || !ok {
 		c.Status(http.StatusBadRequest)
 		return
 	}
@@ -44,17 +44,41 @@ func roomMOVE(c *gin.Context) {
 	room.b.Submit(Message{"move", c.Query("cell")})
 }
 
+func roomJoinOrCreate(c *gin.Context, u *User) {
+	j := joinableRooms()
+	var room *Room
+	if len(j) == 0 {
+		room, _ = newRoom()
+	} else {
+		room = j[0]
+	}
+	room.addUser(u)
+	u.roomId = room.id
+	c.JSON(http.StatusOK, gin.H{
+		"uuid": room.id,
+	})
+}
+
 func roomRANDOM(c *gin.Context) {
 	ok, user := authorized(c)
 	if !ok {
 		c.Status(http.StatusUnauthorized)
 		return
 	}
-	roomid, _ := newRoom()
-	getRoom(roomid).addPlayer(getUser(user))
-	c.JSON(http.StatusCreated, gin.H{
-		"uuid": roomid,
-	})
+
+	u := getUser(user)
+	if u.roomId == "" {
+		roomJoinOrCreate(c, u)
+	} else {
+		r := getRoom(u.roomId)
+		if r != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"uuid": r.id,
+			})
+		} else {
+			roomJoinOrCreate(c, u)
+		}
+	}
 	go sendCountEvent()
 }
 
@@ -89,7 +113,7 @@ func roomLIST(c *gin.Context) {
 
 func roomDELETE(c *gin.Context) {
 	roomid := c.Param("roomid")
-	if roomid == globalRoomID {
+	if roomid == globalRoom.id {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "cannot delete global room",
 		})
@@ -111,8 +135,8 @@ func roomDELETE(c *gin.Context) {
 func roomSTREAM(c *gin.Context) {
 	roomid := c.Param("roomid")
 	if roomid == "global" {
-		roomid = globalRoomID
-	} else if getRoom(roomid) != nil {
+		roomid = globalRoom.id
+	} else if getRoom(roomid) == nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"message": "not found",
 		})
