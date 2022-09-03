@@ -42,7 +42,7 @@ type Room struct {
 // Creating a map of room IDs to broadcasters.
 var rooms = make(map[string]*Room)
 var roomsCounter uint64 = 0
-var globalRoomID, _ = newRoom()
+var globalRoom, _ = newRoom()
 
 // It creates a channel, registers it with the room, and returns it.
 func openListener(roomid string) chan interface{} {
@@ -59,12 +59,33 @@ func closeListener(roomid string, listener chan interface{}) {
 	close(listener)
 }
 
+func joinableRooms() []*Room {
+	rs := make([]*Room, 0)
+	for _, room := range rooms {
+		if room.id != globalRoom.id && (room.users[0] == nil || room.users[1] == nil) {
+			rs = append(rs, room)
+		}
+	}
+	return rs
+}
+
+func (r *Room) addUser(user *User) {
+	r.boardLock.Lock()
+	defer r.boardLock.Unlock()
+	if r.users[0] == nil {
+		r.users[0] = user
+	} else {
+		r.users[1] = user
+	}
+}
+
 // It creates a new room, assigns it a unique ID, creates a new broadcaster for that room, and then
 // adds the broadcaster to the roomChannels map.
-func newRoom() (roomid string, b broadcast.Broadcaster) {
-	roomid = uuid.NewString()
+func newRoom() (r *Room, b broadcast.Broadcaster) {
+	roomid := uuid.NewString()
 	b = broadcast.NewBroadcaster(10)
-	rooms[roomid] = &Room{roomid, b, [9]PlayerSign{}, sync.RWMutex{}, PLAYER_X, [2]*User{}, EMPTY_ROOM}
+	r = &Room{roomid, b, [9]PlayerSign{}, sync.RWMutex{}, PLAYER_X, [2]*User{}, EMPTY_ROOM}
+	rooms[roomid] = r
 	roomsCounter++
 	return
 }
@@ -102,10 +123,4 @@ func (r *Room) move(index int64) {
 	r.boardLock.Lock()
 	defer r.boardLock.Unlock()
 	r.board[index] = r.currentPlayer
-}
-
-func (r *Room) addPlayer(user *User) {
-	r.boardLock.Lock()
-	defer r.boardLock.Unlock()
-	r.users[0] = user
 }
