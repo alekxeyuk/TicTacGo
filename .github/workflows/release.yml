@@ -29,7 +29,7 @@ jobs:
           ${{ runner.os }}-go-
 
     - name: Get dependencies, run test and static check
-      run: go get -u backend/...
+      run: cd backend && go get -u ./...
 
     - name: Build
       env:
