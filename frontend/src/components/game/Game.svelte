@@ -7,7 +7,7 @@
     // let messages: string[] = [];
     let gameInstance = new Game();
     let roomId = "";
-    $: status = `Next player: ${$gameInstance.isXNext ? 'X' : 'O'}`;
+    $: status = `Next player: ${$gameInstance.isXNext ? "O" : "X"}`;
 
     function handleBoardMessage(
         a: CustomEvent<{ action: string; index: number }>
@@ -30,6 +30,9 @@
             case "move":
                 gameInstance.placeSignAtIndex(data.index, data.sign);
                 break;
+            case "win":
+                gameInstance.setWinner(data.sign);
+                break;
         }
     }
 
@@ -49,18 +52,34 @@
     });
 </script>
 
-
 <div class="game">
     <div class="game-board">
         <Board {gameInstance} on:gameEvent={handleBoardMessage} />
     </div>
     <div class="game-info">
-        <h2>{roomId}</h2>
         <div>{status}</div>
-        <!-- <ul>
-            {#each messages as message}
-                <li>{message}</li>
-            {/each}
-        </ul> -->
+        <div>Your sign is: {$gameInstance.mySign}</div>
+        {#if $gameInstance.winner !== ""}
+            <div>
+                Winner: {$gameInstance.winner === $gameInstance.mySign
+                    ? "You"
+                    : "Opponent"}
+            </div>
+        {/if}
     </div>
 </div>
+
+<style>
+    .game {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .game-board {
+        margin-right: 20px;
+    }
+
+    .game-info {
+        margin-top: 20px;
+    }
+</style>

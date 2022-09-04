@@ -18,7 +18,7 @@
         <div class="table clear-both">
             {#each { length: 3 } as _, j}
                 <button
-                    class="bg-white border-2 border-solid border-slate-800 hover:border-rose-400 float-left text-2xl font-bold h-10 w-10 m-px p-0 text-center"
+                    class="bg-white border-2 border-solid border-slate-800 hover:border-rose-400 float-left text-4xl font-bold h-16 w-16 m-px p-0 text-center"
                     on:click={() => handleInput(i * 3 + j)}
                 >
                     { $gameInstance.board[i * 3 + j] }

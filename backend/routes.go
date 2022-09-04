@@ -29,7 +29,7 @@ func sendCountEvent() {
 func roomMOVE(c *gin.Context) {
 	roomid := c.Param("roomid")
 	room := getRoom(roomid)
-	ok, _ := authorized(c)
+	ok, u := authorized(c)
 	if roomid == "global" || room == nil || !ok {
 		c.Status(http.StatusBadRequest)
 		return
@@ -40,8 +40,16 @@ func roomMOVE(c *gin.Context) {
 		c.Status(http.StatusBadRequest)
 		return
 	}
+
+	if room.currentPlayer != getUser(u) || !room.cellIsEmpty(cell) {
+		c.Status(http.StatusForbidden)
+		return
+	}
 	room.move(cell)
-	room.b.Submit(Message{"game", gin.H{"action": "move", "index": c.Query("cell"), "sign": room.currentPlayer.String()}})
+	room.b.Submit(Message{"game", gin.H{"action": "move", "index": c.Query("cell"), "sign": room.currentPlayer.sign.String()}})
+	if room.checkWin() {
+		deleteRoom(room.id, Message{"game", gin.H{"action": "win", "sign": room.currentPlayer.sign.String()}})
+	}
 }
 
 func roomJoinOrCreate(c *gin.Context, u *User) {
@@ -55,8 +63,10 @@ func roomJoinOrCreate(c *gin.Context, u *User) {
 	room.addUser(u)
 	u.roomId = room.id
 	c.JSON(http.StatusOK, gin.H{
-		"uuid": room.id,
-		"state": room.board,
+		"uuid":      room.id,
+		"state":     room.board,
+		"sign":      u.sign.String(),
+		"is_x_next": room.currentPlayer.sign == PLAYER_X,
 	})
 }
 
@@ -74,8 +84,10 @@ func roomRANDOM(c *gin.Context) {
 		r := getRoom(u.roomId)
 		if r != nil {
 			c.JSON(http.StatusOK, gin.H{
-				"uuid": r.id,
-				"state": r.board,
+				"uuid":      r.id,
+				"state":     r.board,
+				"sign":      u.sign.String(),
+				"is_x_next": r.currentPlayer.sign == PLAYER_X,
 			})
 		} else {
 			roomJoinOrCreate(c, u)
@@ -103,7 +115,7 @@ func roomLIST(c *gin.Context) {
 		roomsJSON = append(roomsJSON, gin.H{
 			"uuid":           room.id,
 			"board":          room.board,
-			"current_player": room.currentPlayer.String(),
+			"current_player": room.currentPlayer.sign.String(),
 			"players":        room.users,
 			"state":          room.state.String(),
 		})
@@ -113,26 +125,26 @@ func roomLIST(c *gin.Context) {
 	})
 }
 
-func roomDELETE(c *gin.Context) {
-	roomid := c.Param("roomid")
-	if roomid == globalRoom.id {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "cannot delete global room",
-		})
-		return
-	}
+// func roomDELETE(c *gin.Context) {
+// 	roomid := c.Param("roomid")
+// 	if roomid == globalRoom.id {
+// 		c.JSON(http.StatusBadRequest, gin.H{
+// 			"error": "cannot delete global room",
+// 		})
+// 		return
+// 	}
 
-	if ok := deleteRoom(roomid); ok {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "deleted",
-		})
-		go sendCountEvent()
-	} else {
-		c.JSON(http.StatusGone, gin.H{
-			"message": "not found",
-		})
-	}
-}
+// 	if ok := deleteRoom(roomid); ok {
+// 		c.JSON(http.StatusOK, gin.H{
+// 			"message": "deleted",
+// 		})
+// 		go sendCountEvent()
+// 	} else {
+// 		c.JSON(http.StatusGone, gin.H{
+// 			"message": "not found",
+// 		})
+// 	}
+// }
 
 func roomSTREAM(c *gin.Context) {
 	roomid := c.Param("roomid")
@@ -158,7 +170,7 @@ func roomSTREAM(c *gin.Context) {
 			switch m := msg.(type) {
 			case Message:
 				c.SSEvent(m.Type, m.Body)
-				if m.Type == "stop" {
+				if m.Type == "win" {
 					return false
 				}
 			default:

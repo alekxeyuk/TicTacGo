@@ -8,6 +8,7 @@ import (
 type User struct {
 	id     string
 	roomId string
+	sign   PlayerSign
 }
 
 var userMap = make(map[string]*User)
@@ -15,7 +16,7 @@ var userCounter uint64 = 0
 
 func newUser(rid string) *User {
 	userId := uuid.NewString()
-	u := &User{userId, rid}
+	u := &User{userId, rid, EMPTY_CELL}
 	userMap[userId] = u
 	userCounter++
 	return u
