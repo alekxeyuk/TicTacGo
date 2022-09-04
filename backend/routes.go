@@ -125,27 +125,6 @@ func roomLIST(c *gin.Context) {
 	})
 }
 
-// func roomDELETE(c *gin.Context) {
-// 	roomid := c.Param("roomid")
-// 	if roomid == globalRoom.id {
-// 		c.JSON(http.StatusBadRequest, gin.H{
-// 			"error": "cannot delete global room",
-// 		})
-// 		return
-// 	}
-
-// 	if ok := deleteRoom(roomid); ok {
-// 		c.JSON(http.StatusOK, gin.H{
-// 			"message": "deleted",
-// 		})
-// 		go sendCountEvent()
-// 	} else {
-// 		c.JSON(http.StatusGone, gin.H{
-// 			"message": "not found",
-// 		})
-// 	}
-// }
-
 func roomSTREAM(c *gin.Context) {
 	roomid := c.Param("roomid")
 	if roomid == "global" {
