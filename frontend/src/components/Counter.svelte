@@ -7,7 +7,7 @@
 
     // get the rooms count from the server
     async function getRoomsCount() {
-        const response = await fetch('http://localhost:80/room/count', {credentials: 'include'});
+        const response = await fetch('https://tictacgo-production.up.railway.app/room/count', {credentials: 'include'});
         const data = await response.json();
         count = data.room_count;
     }

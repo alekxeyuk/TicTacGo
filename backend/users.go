@@ -40,8 +40,8 @@ func authorized(c *gin.Context) (bool, string) {
 
 func middlewareBody(c *gin.Context) {
 	uId := newUser("").getId()
-	c.SetCookie("user_id", uId, 3600, "/", "127.0.0.1", false, true)
-	c.SetCookie("user_id", uId, 3600, "/", "localhost", false, true)
+	c.SetCookie("user_id", uId, 3600, "/", "boisterous-alpaca-f64584.netlify.app", false, true)
+	c.SetCookie("user_id", uId, 3600, "/", "tictacgo-production.up.railway.app", false, true)
 	c.Set("user_id", uId)
 }
 

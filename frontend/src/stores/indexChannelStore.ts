@@ -4,7 +4,7 @@ export const createChannelStore = (channelId: string, eventName: string, withAut
     const { subscribe, set } = writable('');
 
     const eventSource = new EventSource(
-        `http://localhost:80/room/${channelId}/stream`,
+        `https://tictacgo-production.up.railway.app/room/${channelId}/stream`,
         { withCredentials: withAuth }
     );
 

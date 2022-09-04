@@ -39,7 +39,11 @@ func setupRouter(router *gin.Engine) {
 
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+		if r_origin := c.Request.Header.Get("Origin"); r_origin != "" {
+			c.Writer.Header().Set("Access-Control-Allow-Origin", r_origin)
+		} else {
+			c.Writer.Header().Set("Access-Control-Allow-Origin", "https://boisterous-alpaca-f64584.netlify.app/")
+		}
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT")

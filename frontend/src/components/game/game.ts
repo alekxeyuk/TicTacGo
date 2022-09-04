@@ -46,7 +46,7 @@ function createStore() {
 }
 
 async function getRandomRoom(): Promise<{ uuid: string; state: number[]; sign: string; is_x_next: boolean }> {
-    const response = await fetch("http://localhost:80/room/random", { credentials: 'include' });
+    const response = await fetch("https://tictacgo-production.up.railway.app/room/random", { credentials: 'include' });
     return response.json();
 }
 
@@ -69,7 +69,7 @@ export class Game {
         }
         this.mutex = true;
 
-        fetch(`http://localhost:80/room/${this.channelId}/move?cell=${index}`, {
+        fetch(`https://tictacgo-production.up.railway.app/room/${this.channelId}/move?cell=${index}`, {
             method: 'PUT',
             credentials: 'include',
         }).then(() => {
