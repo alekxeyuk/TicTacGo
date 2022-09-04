@@ -1,6 +1,8 @@
 package main
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -42,6 +44,7 @@ func middlewareBody(c *gin.Context) {
 	uId := newUser("").getId()
 	c.SetCookie("user_id", uId, 3600, "/", "boisterous-alpaca-f64584.netlify.app", false, true)
 	c.SetCookie("user_id", uId, 3600, "/", "tictacgo-production.up.railway.app", false, true)
+	c.SetSameSite(http.SameSiteNoneMode)
 	c.Set("user_id", uId)
 }
 
