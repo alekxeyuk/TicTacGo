@@ -43,8 +43,8 @@ func authorized(c *gin.Context) (bool, string) {
 func middlewareBody(c *gin.Context) {
 	uId := newUser("").getId()
 	c.SetSameSite(http.SameSiteNoneMode)
-	c.SetCookie("user_id", uId, 3600, "/", "boisterous-alpaca-f64584.netlify.app", false, true)
-	c.SetCookie("user_id", uId, 3600, "/", "tictacgo-production.up.railway.app", false, true)
+	c.SetCookie("user_id", uId, 3600, "/", "boisterous-alpaca-f64584.netlify.app", true, true)
+	c.SetCookie("user_id", uId, 3600, "/", "tictacgo-production.up.railway.app", true, true)
 	c.Set("user_id", uId)
 }
 
